@@ -1,66 +1,60 @@
 package org.example;
 
+
 import io.restassured.RestAssured;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.path.json.JsonPath;
-import org.testng.annotations.Test;
+import org.testng.Assert;
 
 import java.io.File;
 
 import static io.restassured.RestAssured.given;
 
 public class JiraTest {
-    @Test
+    public static void main(String[] args) {
 
-    //add a comment
-    public void addComment(){
-
-        RestAssured.baseURI ="http://localhost:8080";
-
-        //Login scenario
+        //Login scenario api
         SessionFilter session = new SessionFilter();
+        RestAssured.baseURI = "http://localhost:8085";
 
-        given().header("Content-Type","application/json").body("{ \"username\": \"ayushigarg\", \"password\": \"Happylife16\" }").log().all()
-              .filter(session).when().post("/rest/auth/1/session/")
-                        .then().log().all().extract().response().asString();
+        String response = given().relaxedHTTPSValidation().header("Content-Type", "application/json").body("{ \"username\": \"ayushigarg\", \"password\": \"Ayushi123\" }").log().all().filter(session).when().post("/rest/auth/1/session/").then().extract().response().asString();
 
+        String expectedMsg = "added comment to add title.";
 //add comment
-        given().pathParam("id","10004").body("{\n" +
-                "    \"body\": \"added comment to add title new.\",\n" +
-                "    \"visibility\": {\n" +
-                "        \"type\": \"role\",\n" +
-                "        \"value\": \"Administrators\"\n" +
-                "    }\n" +
-                "}").header("Content-Type","application/json")
-                .filter(session).when().post("rest/api/2/issue/{id}/comment")
-                .then().log().all().assertThat().statusCode(201).extract().response().asString();
+        String addCommentResponse = given().pathParam("id", "10024").log().all().header("Content-Type", "application/json").body("{\n" + "    \"body\": \"" + expectedMsg + "\",\n" + "    \"visibility\": {\n" + "        \"type\": \"role\",\n" + "        \"value\": \"Administrators\"\n" + "    }\n" + "}").filter(session).when().post("/rest/api/2/issue/{id}/comment").then().log().all().assertThat().statusCode(201).extract().response().asString();
+        JsonPath commentJs = new JsonPath(addCommentResponse);
+        String commentId = commentJs.getString("id");
+        System.out.println("comment id is " + commentId);
 
-        //Add attachment
+        //add attachment to an issue
 
-     String comment =  given().header("X-Atlassian-Token" , "no-check").filter(session).pathParam("id","10004")
-                .header("Content-Type","multipart/form-data")
-                .multiPart("file", new File("jira.text"))
-                .when().post("/rest/api/2/issue/{id}/attachments")
-                .then().log().all().assertThat().statusCode(200).extract().response().asString();
-
-     JsonPath jsComment = new JsonPath(comment);
-    String commentId = jsComment.getString("id");
+        given().header("X-Atlassian-Token", "no-check").filter(session).pathParam("id", "10024").header("Content-Type", "multipart/form-data").multiPart("file", new File("jira.text")).when().post("rest/api/2/issue/{id}/attachments").then().log().all().assertThat().statusCode(200);
 
 
+        //Get issue
+        String issueDetails = given().filter(session).pathParam("id", "10024").queryParam("fields", "comment").log().all().when().get("/rest/api/2/issue/{id}").then().log().all().extract().response().asString();
+        System.out.println("issue is " + issueDetails);
+        JsonPath js1 = new JsonPath(issueDetails);
+        int commentsCount = js1.getInt("fields.comment.comments.size()");
 
-        //get issue
+        for (int i = 0; i < commentsCount; i++) {
+            String commentIdIssue = js1.get("fields.comment.comments[" + i + "].id").toString();
 
-       String getIssueDetails =  given().filter(session).pathParam("id","10004")
-               .queryParam("fields","comment")
-                .when().get("/rest/api/2/issue/{id}").
-                then().log().all().assertThat().statusCode(200).toString();
-        System.out.println("get issue " +getIssueDetails);
+            if (commentIdIssue.equalsIgnoreCase(commentId)) {
+                String message = js1.get("fields.comment.comments[" + i + "].body").toString();
 
-       /* JsonPath js = new JsonPath(getIssueDetails);
-       int commentCounts = js.getInt("fields.comment.comments.size()");
-       for(int i=0; i<= commentCounts; i++){
-           js.getInt("fields.comment.comments["+i+"].id");*/
-       }
+                System.out.println("messgae is = " + message);
+
+                Assert.assertEquals(message, expectedMsg);
+
+            }
+
+
+        }
+    }
 
 
 }
+
+
+
