@@ -17,7 +17,8 @@ public class JiraTest {
         SessionFilter session = new SessionFilter();
         RestAssured.baseURI = "http://localhost:8085";
 
-        String response = given().relaxedHTTPSValidation().header("Content-Type", "application/json").body("{ \"username\": \"ayushigarg\", \"password\": \"Ayushi123\" }").log().all().filter(session).when().post("/rest/auth/1/session/").then().extract().response().asString();
+        String response = given().relaxedHTTPSValidation().header("Content-Type", "application/json").body("{ \"username\": \"ayushigarg\", \"password\": \"Ayushi123\" }")
+                .log().all().filter(session).when().post("/rest/auth/1/session/").then().extract().response().asString();
 
         String expectedMsg = "added comment to add title.";
 //add comment
