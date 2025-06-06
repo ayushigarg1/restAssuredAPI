@@ -1,5 +1,6 @@
 package org.example;
 
+import groovyjarjarantlr4.v4.runtime.atn.SemanticContext;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
 import io.restassured.path.json.JsonPath;
@@ -32,6 +33,13 @@ public class oAuthTest {
                 .statusCode(200)
                 .body("size()", equalTo(10));
 
+//OR
+        given().auth().basic("username", "password")
+                .when()
+                .get("https://api.example.com/users")
+                .then()
+                .statusCode(200)
+                .body("size()", equalTo(10));
 
         //get authorization Code
         String url = "https://rahulshettyacademy.com/getCourse.php?state=test&code=4%2F0AfJohXnGOxfUovloL4Sx0oard3qt-DtSzEPmWmcVkmtS6N1QlTjswzMJ6bLeVU5L0g1qpQ&scope=email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+openid&authuser=0&prompt=none";
