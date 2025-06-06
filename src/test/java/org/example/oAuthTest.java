@@ -14,11 +14,23 @@ import java.util.Arrays;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
 
 public class oAuthTest {
     public static void main(String[] args) {
 
         String[] courseTitle = {"Selenium Webdriver Java", "Cypress", "Protractor"};
+
+//basic auth
+        given()
+                .baseUri("https://api.example.com")
+                .header("Authorization", "Bearer xyz123")
+                .queryParam("type", "admin")
+                .when()
+                .get("/users")
+                .then()
+                .statusCode(200)
+                .body("size()", equalTo(10));
 
 
         //get authorization Code

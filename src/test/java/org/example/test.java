@@ -24,15 +24,7 @@ public class    test {
               .when().put("maps/api/place/update/json")
               .then().assertThat().log().all().statusCode(200).body("msg",equalTo("Address successfully updated"));
 
-      given()
-              .baseUri("https://api.example.com")
-              .header("Authorization", "Bearer xyz123")
-              .queryParam("type", "admin")
-              .when()
-              .get("/users")
-              .then()
-              .statusCode(200)
-              .body("size()", equalTo(10));
+
 
 
   }
