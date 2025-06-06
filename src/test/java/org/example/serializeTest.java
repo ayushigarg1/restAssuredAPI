@@ -38,10 +38,10 @@ public class serializeTest {
         p.setLocation(l);
 
 
-        RequestSpecification req = new RequestSpecBuilder().setBaseUri("https://rahulshettyacademy.com").addQueryParam("key", "qaclick123").setContentType(ContentType.JSON).build();
-        ResponseSpecification repSpec = new ResponseSpecBuilder().expectStatusCode(200).build();
+            RequestSpecification req = new RequestSpecBuilder().setBaseUri("https://rahulshettyacademy.com").addQueryParam("key", "qaclick123").setContentType(ContentType.JSON).build();
+            ResponseSpecification repSpec = new ResponseSpecBuilder().expectStatusCode(200).build();
 
-        RequestSpecification res = given().log().all().spec(req).body(p);
+            RequestSpecification res = given().log().all().spec(req).body(p);
         Response rep = res.when().post("/maps/api/place/add/json");
         rep.then().assertThat().spec(repSpec).extract().response();
 
